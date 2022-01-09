@@ -5,10 +5,10 @@ from requests import Response
 from thepeer.errors import TokenNotFound, Errors
 from urllib.parse import urljoin
 
-from thepeer.base import Send, Charge, Checkout, Transaction, Link, Test
+from thepeer.base import User, Send, Charge, Checkout, Transaction, Link, Test
 
 
-class ThePeer(Send, Checkout, Charge, Transaction, Link, Test):
+class ThePeer(User, Send, Checkout, Charge, Transaction, Link, Test):
     BASE_URL = 'https://api.thepeer.co'
     AUTH_KEY = 'X-API-Key'
     
