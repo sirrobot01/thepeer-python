@@ -68,11 +68,24 @@ class Charge:
         return self.make_request('POST', f'link/{link_id}/charge', data=data)
         
 
-
-
 class Transaction:
-    pass
-
-
+    def get_transaction(self, transaction_id: str):
+        return self.make_request('GET', f'transactions/{transaction_id}')
+    
+    def refund_transaction(self, transaction_id: str, reason: Optional[str] = ''):
+        data = {'reason': reason}
+        return self.make_request('POST', f'transactions/{transaction_id}/refund', data=data)
+        
 class Link:
-    pass
+    def get_user_links(self, reference: str):
+        return self.make_request('GET', f'users/{reference}/links')
+    
+    def get_link(self, link_id: str):
+        return self.make_request('GET', f'link/{link_id}')
+       
+
+class Test:
+    def test_crediting(self, amount: int, user_reference: str):
+        data = {"amount": amount, "user_reference": user_reference}
+        return self.make_request('POST', f'test-receive', data=data)
+        
