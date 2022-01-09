@@ -1,16 +1,17 @@
 from typing import Optional
+import requests
 
 from thepeer.errors import InvalidEventError
 
 
 class User:
-    def index_user(self, name, identifier, email):
+    def index_user(self, name, identifier, email) -> requests.Response:
         data = {
             'name': name, 'identifier': identifier, 'email': email
         }
         return self.make_request('POST', 'users/', data=data)
 
-    def get_users(self, page: Optional[int] = None, perPage: Optional[int] = None):
+    def get_users(self, page: Optional[int] = None, perPage: Optional[int] = None) -> requests.Response:
         params = {
             'page': page, 'perPage': perPage
         }
@@ -28,7 +29,7 @@ class Checkout:
         'success', 'insufficient_funds', 'business_decline', 'user_decline'
     ]
 
-    def authorize_checkout(self, reference: str, event: str):
+    def authorize_checkout(self, reference: str, event: str) -> requests.Response:
         if event not in self.Events:
             raise InvalidEventError(f"'{event}' not valid. Valid choices {','.join(self.Events)}")
         data = {
@@ -41,7 +42,7 @@ class Send:
         'success', 'insufficient_funds'
     ]
     
-    def authorize_send(self, receipt: str, event: str):
+    def authorize_send(self, receipt: str, event: str) -> requests.Response:
         if event not in self.Events:
             raise InvalidEventError(f"'{event}' not valid. Valid choices {','.join(self.Events)}")
         data = {
@@ -55,7 +56,7 @@ class Charge:
         'success', 'insufficient_funds', 'business_decline', 'user_decline'
     ]
     
-    def authorize_direct_charge(self, reference: str, event: str):
+    def authorize_direct_charge(self, reference: str, event: str) -> requests.Response:
         if event not in self.Events:
             raise InvalidEventError(f"'{event}' not valid. Valid choices {','.join(self.Events)}")
         data = {
@@ -63,13 +64,13 @@ class Charge:
         }
         return self.make_request('POST', f'debit/{reference}', data=data)
     
-    def charge_link(self, link_id: str, amount: int, remark: str):
+    def charge_link(self, link_id: str, amount: int, remark: str) -> requests.Response:
         data = {"amount": amount, "remark": remark}
         return self.make_request('POST', f'link/{link_id}/charge', data=data)
         
 
 class Transaction:
-    def get_transaction(self, transaction_id: str):
+    def get_transaction(self, transaction_id: str) -> requests.Response:
         return self.make_request('GET', f'transactions/{transaction_id}')
     
     def refund_transaction(self, transaction_id: str, reason: Optional[str] = ''):
@@ -77,7 +78,7 @@ class Transaction:
         return self.make_request('POST', f'transactions/{transaction_id}/refund', data=data)
         
 class Link:
-    def get_user_links(self, reference: str):
+    def get_user_links(self, reference: str) -> requests.Response:
         return self.make_request('GET', f'users/{reference}/links')
     
     def get_link(self, link_id: str):
@@ -85,7 +86,7 @@ class Link:
        
 
 class Test:
-    def test_crediting(self, amount: int, user_reference: str):
+    def test_crediting(self, amount: int, user_reference: str) -> requests.Response:
         data = {"amount": amount, "user_reference": user_reference}
         return self.make_request('POST', f'test-receive', data=data)
         

@@ -1,7 +1,6 @@
 from typing import Optional
 
-import requests
-from requests import Response
+import requests, hmac, hashlib
 from thepeer.errors import TokenNotFound, Errors
 from urllib.parse import urljoin
 
@@ -9,17 +8,22 @@ from thepeer.base import User, Send, Charge, Checkout, Transaction, Link, Test
 
 
 class ThePeer(User, Send, Checkout, Charge, Transaction, Link, Test):
-    BASE_URL = 'https://api.thepeer.co'
+    BASE_URL = 'https://api.thepeer.co/'
     AUTH_KEY = 'X-API-Key'
     
-    def __init__(self, token):
+    def __init__(self, token: str) -> None:
         self.token = token
         
-    def prepare_url(self, path: str = ''):
+    def validate_signature(self, signature: str,  payload: dict) -> bool:
+        hashed = hmac.new(bytes(self.token), f'{payload}', hashlib.sha1).hexdigest()
+        
+        return hashed == signature
+        
+    def prepare_url(self, path: str = '') -> str:
         return urljoin(self.BASE_URL, path)
     
     def make_request(self, method: str, path: str, params: Optional[dict] = None,
-                     data: Optional[dict] = None, headers: Optional[dict] = None):
+                     data: Optional[dict] = None, headers: Optional[dict] = None) -> requests.Response:
         if data is None:
             data = {}
         if params is None:
@@ -43,7 +47,7 @@ class ThePeer(User, Send, Checkout, Charge, Transaction, Link, Test):
         return self.process_response(response)
     
     @staticmethod
-    def process_response(response: Response):
+    def process_response(response: requests.Response) -> requests.Response:
         status_code = response.status_code
         if status_code == 200 or status_code == 201:
             return response
@@ -56,5 +60,3 @@ class ThePeer(User, Send, Checkout, Charge, Transaction, Link, Test):
             else:
                 raise exc(err_message)
             
-        
-        
